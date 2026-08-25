@@ -170,6 +170,7 @@ function renderNews(data) {
                 <div class="article-meta">${escapeHtml(article.publishedFormatted)}</div>
                 <a href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer" class="article-read-more">Read More →</a>
             `;
+            card.style.animationDelay = `${Math.min(i - 1, 8) * 55}ms`;
             grid.appendChild(card);
         }
     }
@@ -243,3 +244,149 @@ function escapeHtml(text) {
     div.appendChild(document.createTextNode(text));
     return div.innerHTML;
 }
+
+/* ============================================================
+   NEWZY — INTERACTION LAYER
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    const date = new Date();
+    const todayLabel = document.getElementById('todayLabel');
+    if (todayLabel) {
+        todayLabel.textContent = date.toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+        }).toUpperCase();
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('newzy-theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+
+    themeToggle?.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem(
+            'newzy-theme',
+            document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+        );
+        showNewzyToast(
+            document.body.classList.contains('dark-mode')
+                ? 'NIGHT EDITION ON'
+                : 'DAY EDITION ON'
+        );
+    });
+
+    document.getElementById('printEdition')?.addEventListener('click', () => {
+        window.print();
+    });
+
+    document.getElementById('backToTop')?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
+
+function showNewzyToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.newzyToastTimer);
+    window.newzyToastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+
+/* ============================================================
+   NEWZY — OFF-CANVAS NEWS TOOLS
+   ============================================================ */
+
+(function initNewzyTools() {
+    function setup() {
+        const trigger = document.getElementById('newsToolsTrigger');
+        const panel = document.getElementById('newsToolsPanel');
+        const backdrop = document.getElementById('newsToolsBackdrop');
+        const closeBtn = document.getElementById('closeNewsTools');
+        const from = document.getElementById('fromDate');
+        const to = document.getElementById('toDate');
+        const label = document.getElementById('dateRangeLabel');
+
+        if (!trigger || !panel) return;
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        function toInputDate(date) {
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        }
+
+        function prettyDate(value) {
+            if (!value) return '—';
+            const date = new Date(`${value}T00:00:00`);
+            return date.toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric'
+            }).toUpperCase();
+        }
+
+        function updateDateLabel() {
+            if (!from?.value || !to?.value) {
+                if (label) label.textContent = 'CHOOSE DATES';
+                return;
+            }
+            if (label) label.textContent = `${prettyDate(from.value)} → ${prettyDate(to.value)}`;
+        }
+
+        function setDefaultRange() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+
+            if (from) from.value = toInputDate(yesterday);
+            if (to) to.value = toInputDate(today);
+            if (from) from.max = toInputDate(today);
+            if (to) to.max = toInputDate(today);
+            updateDateLabel();
+        }
+
+        function openTools() {
+            panel.hidden = false;
+            backdrop.hidden = false;
+            trigger.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('tools-open');
+            setTimeout(() => document.getElementById('searchQuery')?.focus(), 30);
+        }
+
+        function closeTools() {
+            panel.hidden = true;
+            backdrop.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('tools-open');
+        }
+
+        trigger.addEventListener('click', () => {
+            if (panel.hidden) openTools();
+            else closeTools();
+        });
+
+        closeBtn?.addEventListener('click', closeTools);
+        backdrop?.addEventListener('click', closeTools);
+
+        from?.addEventListener('change', () => {
+            if (to.value && from.value > to.value) to.value = from.value;
+            updateDateLabel();
+        });
+
+        to?.addEventListener('change', () => {
+            if (from.value && to.value < from.value) from.value = to.value;
+            updateDateLabel();
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !panel.hidden) closeTools();
+        });
+
+        // Preserve the requested default: yesterday -> today.
+        setDefaultRange();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setup);
+    } else {
+        setup();
+    }
+})();

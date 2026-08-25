@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Daily Chronicle</title>
+    <title>NEWZY — The Daily Pulse</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,75 +17,125 @@
         <div class="header-top-line">
             <span class="header-date" id="currentDate"></span>
             <span class="header-edition">ONLINE EDITION</span>
-            <span class="header-weather">☀ Serving News Since 2024</span>
+            <span class="header-weather">● LIVE • NEWS SHOWER</span>
         </div>
 
         <div class="header-rule"></div>
 
-        <h1 class="newspaper-title">The Daily Chronicle</h1>
-        <p class="newspaper-subtitle">All the News That's Fit to Display — Powered by Technology</p>
+        <h1 class="newspaper-title">NEWZY</h1>
+        <p class="newspaper-subtitle">THE DAILY PULSE OF WHAT'S HAPPENING</p>
 
         <div class="header-rule"></div>
 
         <div class="header-meta-line">
-            <span>Vol. CXXIV . . . No. 42,897</span>
-            <span class="header-price">FREE DIGITAL ACCESS</span>
+            <span>VOL. 01  ·  DIGITAL EDITION</span>
+            <span class="header-price">FREE • ALWAYS ON</span>
         </div>
     </header>
 
-    <!-- ========== SEARCH / CONTROLS ========== -->
-    <section class="controls-section">
-        <div class="controls-container">
-            <div class="search-bar">
-                <div class="search-input-wrapper">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    <input
-                        type="text"
-                        id="searchQuery"
-                        placeholder="Search for news topics, people, events..."
-                        value="latest news"
-                        autocomplete="off"
-                    >
-                </div>
-            </div>
 
-            <div class="date-controls">
-                <div class="date-field">
-                    <label for="fromDate">From</label>
-                    <input type="date" id="fromDate">
-                </div>
-                <div class="date-field">
-                    <label for="toDate">To</label>
-                    <input type="date" id="toDate">
-                </div>
-                <button id="searchBtn" class="search-button" onclick="fetchNews()">
-                    <span class="btn-text">FETCH NEWS</span>
-                    <span class="btn-loading" style="display:none;">
-                        <span class="spinner"></span> SEARCHING...
-                    </span>
-                </button>
-            </div>
+    <!-- ========== EDITORIAL NAV ========== -->
+    <nav class="section-nav" aria-label="News categories">
+        <div class="section-nav-inner">
+            <span class="nav-kicker">THE NEWS DESK</span>
+            <button onclick="quickSearch('World')">World</button>
+            <button onclick="quickSearch('Technology')">Technology</button>
+            <button onclick="quickSearch('Business')">Business</button>
+            <button onclick="quickSearch('Sports')">Sports</button>
+            <button onclick="quickSearch('Science')">Science</button>
+            <button onclick="quickSearch('Health')">Health</button>
+            <button onclick="quickSearch('Entertainment')">Culture</button>
+            <span class="nav-status"><span class="live-dot"></span> LIVE</span>
+        </div>
+    </nav>
 
-            <div class="quick-tags">
-                <span class="tag-label">Quick:</span>
-                <button class="tag-btn" onclick="quickSearch('World')">World</button>
-                <button class="tag-btn" onclick="quickSearch('Technology')">Technology</button>
-                <button class="tag-btn" onclick="quickSearch('Business')">Business</button>
-                <button class="tag-btn" onclick="quickSearch('Sports')">Sports</button>
-                <button class="tag-btn" onclick="quickSearch('Science')">Science</button>
-                <button class="tag-btn" onclick="quickSearch('Health')">Health</button>
-                <button class="tag-btn" onclick="quickSearch('Entertainment')">Entertainment</button>
+    <!-- ========== NEWZY TOOLBOX ========== -->
+    <button class="news-tools-trigger" id="newsToolsTrigger" type="button"
+            aria-haspopup="dialog" aria-expanded="false">
+        <span class="tools-icon">☰</span>
+        <span>NEWS TOOLS</span>
+    </button>
+
+    <div class="news-tools-backdrop" id="newsToolsBackdrop" hidden></div>
+
+    <aside class="news-tools-panel" id="newsToolsPanel"
+           role="dialog" aria-modal="true" aria-labelledby="newsToolsTitle" hidden>
+        <div class="tools-panel-head">
+            <div>
+                <span class="eyebrow">NEWZY DESK</span>
+                <h2 id="newsToolsTitle">Find a Story</h2>
+            </div>
+            <button class="popover-close" id="closeNewsTools" type="button"
+                    aria-label="Close news tools">×</button>
+        </div>
+
+        <div class="tools-search">
+            <label for="searchQuery">SEARCH THE NEWS</label>
+            <div class="search-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchQuery"
+                       placeholder="Topics, people, events..." value="latest news"
+                       autocomplete="off">
             </div>
         </div>
-    </section>
+
+        <div class="tools-date">
+            <div class="tools-date-heading">
+                <span class="eyebrow">ARCHIVE FILTER</span>
+                <strong id="dateRangeLabel">YESTERDAY → TODAY</strong>
+            </div>
+            <div class="date-fields">
+                <div class="date-field">
+                    <label for="fromDate">FROM</label>
+                    <input type="date" id="fromDate">
+                </div>
+                <span class="date-arrow">→</span>
+                <div class="date-field">
+                    <label for="toDate">TO</label>
+                    <input type="date" id="toDate">
+                </div>
+            </div>
+        </div>
+
+        <button id="searchBtn" class="search-button tools-submit" type="button" onclick="fetchNews()">
+            <span class="btn-text">SEARCH THE DESK</span>
+            <span class="btn-loading" style="display:none;">
+                <span class="spinner"></span> SEARCHING...
+            </span>
+        </button>
+    </aside>
+
+    <!-- ========== STATUS BAR ========== -->
+    <div class="status-bar" id="statusBar" style="display: none;">
+ id="datePopoverBackdrop" hidden></div>
 
     <!-- ========== STATUS BAR ========== -->
     <div class="status-bar" id="statusBar" style="display: none;">
         <span id="statusMessage"></span>
     </div>
+
+
+    <!-- ========== NEWS UTILITY RAIL ========== -->
+    <aside class="utility-rail" aria-label="News utilities">
+        <div class="utility-item">
+            <span class="utility-label">TODAY</span>
+            <strong id="todayLabel">—</strong>
+        </div>
+        <div class="utility-item">
+            <span class="utility-label">DESK</span>
+            <strong>ALL NEWS</strong>
+        </div>
+        <div class="utility-item">
+            <span class="utility-label">MODE</span>
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode">
+                <span>◐</span> NIGHT EDITION
+            </button>
+        </div>
+    </aside>
 
     <!-- ========== MAIN NEWS CONTENT ========== -->
     <main class="newspaper-body">
@@ -93,9 +143,9 @@
         <!-- Loading Skeleton (shown before first fetch) -->
         <div class="default-placeholder" id="defaultPlaceholder">
             <div class="placeholder-ornament">✦</div>
-            <h2 class="placeholder-title">Welcome to The Daily Chronicle</h2>
+            <h2 class="placeholder-title">Welcome to NEWZY</h2>
             <p class="placeholder-text">
-                Enter a search query above and click <strong>"FETCH NEWS"</strong> to load the latest articles.
+                Enter a search query above and click <strong>"SEARCH THE DESK"</strong> to load the latest articles.
                 You can also use the date range to narrow down your results or click any quick tag to get started.
             </p>
             <div class="placeholder-ornament">✦ ✦ ✦</div>
@@ -129,7 +179,7 @@
                     <div class="press-bar"></div>
                     <div class="press-bar"></div>
                 </div>
-                <p class="loading-text">Fetching the latest news...</p>
+                <p class="loading-text">Printing today's front page...</p>
             </div>
         </div>
 
@@ -152,7 +202,15 @@
         <div class="news-container" id="newsContainer" style="display: none;">
 
             <!-- Result Summary -->
-            <div class="results-summary" id="resultsSummary"></div>
+
+            <div class="results-summary-wrap">
+                <div class="results-summary" id="resultsSummary"></div>
+                <div class="results-tools">
+                    <button type="button" id="printEdition">PRINT EDITION</button>
+                    <button type="button" id="backToTop">↑ TOP</button>
+                </div>
+            </div>
+
 
             <div class="section-rule double"></div>
 
@@ -162,7 +220,37 @@
             <div class="section-rule" id="heroRule" style="display: none;"></div>
 
             <!-- Remaining Articles Grid -->
-            <div class="articles-grid" id="articlesGrid"></div>
+
+            <div class="news-lower-layout">
+                <div class="articles-grid" id="articlesGrid"></div>
+                <aside class="news-sidebar">
+                    <section class="sidebar-panel">
+                        <div class="sidebar-heading"><span>01</span> MOST READ</div>
+                        <ol class="most-read">
+                            <li><span>01</span> The stories everyone is talking about today.</li>
+                            <li><span>02</span> What changed overnight — and why it matters.</li>
+                            <li><span>03</span> The latest signal from technology and business.</li>
+                            <li><span>04</span> Sports, culture and the stories beyond the headline.</li>
+                        </ol>
+                    </section>
+                    <section class="sidebar-panel editor-panel">
+                        <div class="sidebar-heading"><span>02</span> EDITOR'S NOTE</div>
+                        <p>News should move quickly without making you rush. NEWZY brings the front page, the live pulse and the context together.</p>
+                        <div class="editor-sign">— THE NEWZY DESK</div>
+                    </section>
+                    <section class="sidebar-panel">
+                        <div class="sidebar-heading"><span>03</span> TRENDING</div>
+                        <div class="trend-cloud">
+                            <button onclick="quickSearch('Artificial Intelligence')">AI</button>
+                            <button onclick="quickSearch('India')">INDIA</button>
+                            <button onclick="quickSearch('Markets')">MARKETS</button>
+                            <button onclick="quickSearch('Climate')">CLIMATE</button>
+                            <button onclick="quickSearch('Space')">SPACE</button>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+
         </div>
 
     </main>
@@ -172,8 +260,8 @@
         <div class="footer-rule"></div>
         <div class="footer-content">
             <div class="footer-left">
-                <h3>The Daily Custom Chronicle</h3>
-                <p>A digital newspaper experience.</p>
+                <h3>NEWZY</h3>
+                <p>Independent digital news, redesigned for the modern reader.</p>
             </div>
             <div class="footer-center">
                 <p>Powered by <a href="https://gnews.io" target="_blank" rel="noopener">GNews API</a></p>
@@ -181,11 +269,13 @@
             </div>
             <div class="footer-right">
                 <p id="footerDate"></p>
-                <p>©2026 The Daily Chronicle</p>
+                <p>©2026 NEWZY</p>
             </div>
         </div>
     </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

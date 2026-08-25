@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 import os
 from dotenv import load_dotenv
-
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -48,12 +48,29 @@ def fetch_news():
             'message': 'Invalid date format. Use YYYY-MM-DD.'
         }), 400
 
-    # Build GNews API request
+    if from_date > to_date:
+        return jsonify({
+            'success': False,
+            'message': 'The From date cannot be later than the To date.'
+        }), 400
+
+    # Build GNews API request.
+    # The frontend accepts YYYY-MM-DD, but GNews expects RFC3339 timestamps
+    # for the `from` and `to` search parameters.
     url = "https://gnews.io/api/v4/search"
+
+    from_dt = datetime.strptime(from_date, '%Y-%m-%d')
+    to_dt = datetime.strptime(to_date, '%Y-%m-%d') + timedelta(days=1)
+
+    gnews_from = from_dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+    # Use the next day's midnight as an exclusive upper boundary so the
+    # selected `to_date` includes the entire calendar day.
+    gnews_to = to_dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+
     params = {
         "q": query,
-        "from": from_date,
-        "to": to_date,
+        "from": gnews_from,
+        "to": gnews_to,
         "lang": lang,
         "sortby": "publishedAt",
         "apikey": GNEWS_API_KEY,
@@ -61,7 +78,12 @@ def fetch_news():
     }
 
     try:
+        print(">>> GNEWS REQUEST STARTED")
+
         response = requests.get(url, params=params, timeout=10)
+
+        print(">>> GNEWS STATUS:", response.status_code)
+        print(">>> GNEWS BODY:", response.text)
         data = response.json()
 
         if response.status_code == 200 and "articles" in data:
