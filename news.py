@@ -11,6 +11,10 @@ app = Flask(__name__)
 
 GNEWS_API_KEY = os.getenv("api_key")
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok'}), 200   
+
 @app.route('/')
 def index():
     """Serve the main newspaper page."""
