@@ -9,11 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-GNEWS_API_KEY = os.getenv("api_key")
-
-@app.route('/health')
-def health():
-    return jsonify({'status': 'ok'}), 200   
+GNEWS_API_KEY = os.getenv("api_key") 
 
 @app.route('/')
 def index():
